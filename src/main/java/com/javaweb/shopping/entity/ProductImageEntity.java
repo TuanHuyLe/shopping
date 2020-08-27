@@ -1,10 +1,10 @@
-package com.javaweb.shopping.enitty;
+package com.javaweb.shopping.entity;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "ProductImage")
-public class ProductImageEntity extends BaseEntity<UserEntity> {
+public class ProductImageEntity extends BaseEntity<String> {
     @Column(length = 191)
     private String imagePath;
     @Column(length = 191)

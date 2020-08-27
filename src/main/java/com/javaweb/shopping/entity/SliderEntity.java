@@ -1,4 +1,4 @@
-package com.javaweb.shopping.enitty;
+package com.javaweb.shopping.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -6,7 +6,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "Slider")
-public class SliderEntity extends BaseEntity<UserEntity> {
+public class SliderEntity extends BaseEntity<String> {
     @Column(length = 191)
     private String name;
     @Column(length = 191)

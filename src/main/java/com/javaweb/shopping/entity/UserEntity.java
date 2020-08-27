@@ -1,4 +1,4 @@
-package com.javaweb.shopping.enitty;
+package com.javaweb.shopping.entity;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "User")
-public class UserEntity extends BaseEntity<UserEntity> {
+public class UserEntity extends BaseEntity<String> {
     @Column(length = 191)
     private String name;
     @Column(name = "email", length = 191)
@@ -36,6 +36,10 @@ public class UserEntity extends BaseEntity<UserEntity> {
     private List<ProductEntity> products = new ArrayList<>();
 
     //getter and setter
+    public List<RoleEntity> getRoles() {
+        return roles;
+    }
+
     public void setProducts(List<ProductEntity> products) {
         this.products = products;
     }
@@ -76,11 +80,9 @@ public class UserEntity extends BaseEntity<UserEntity> {
         this.status = status;
     }
 
-    public UserEntity(String name, String username, String password, Integer status) {
-        this.name = name;
+    public UserEntity(String username, String password) {
         this.username = username;
         this.password = password;
-        this.status = status;
     }
 
     public UserEntity() {
