@@ -1,4 +1,4 @@
-package com.javaweb.shopping.enitty;
+package com.javaweb.shopping.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "Role")
-public class RoleEntity extends BaseEntity<UserEntity> {
+public class RoleEntity extends BaseEntity<String> {
     @Column(length = 191)
     private String name;
     @Column(length = 191)

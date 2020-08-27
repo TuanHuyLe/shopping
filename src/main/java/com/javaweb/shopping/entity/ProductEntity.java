@@ -1,4 +1,4 @@
-package com.javaweb.shopping.enitty;
+package com.javaweb.shopping.entity;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "Product")
-public class ProductEntity extends BaseEntity<UserEntity> {
+public class ProductEntity extends BaseEntity<String> {
     @Column(length = 191)
     private String name;
     @Column

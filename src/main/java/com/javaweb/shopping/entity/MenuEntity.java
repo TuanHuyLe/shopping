@@ -1,12 +1,12 @@
-package com.javaweb.shopping.enitty;
+package com.javaweb.shopping.entity;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
-@Table(name = "Category")
-public class CategoryEntity extends BaseEntity<UserEntity> {
+@Table(name = "Menu")
+public class MenuEntity extends BaseEntity<String> {
     @Column(length = 191)
     private String name;
     @Column(length = 191)
@@ -14,19 +14,7 @@ public class CategoryEntity extends BaseEntity<UserEntity> {
     @Column(columnDefinition = "integer default 0")
     private Integer parentId;
 
-    //many to many with product
-    @OneToMany(
-            mappedBy = "category",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<ProductEntity> products = new ArrayList<>();
-
     //getter and setter
-    public void setProducts(List<ProductEntity> products) {
-        this.products = products;
-    }
-
     public String getName() {
         return name;
     }
@@ -51,12 +39,12 @@ public class CategoryEntity extends BaseEntity<UserEntity> {
         this.parentId = parentId;
     }
 
-    public CategoryEntity(String name, String slug, Integer parentId) {
+    public MenuEntity(String name, String slug, Integer parentId) {
         this.name = name;
         this.slug = slug;
         this.parentId = parentId;
     }
 
-    public CategoryEntity() {
+    public MenuEntity() {
     }
 }
