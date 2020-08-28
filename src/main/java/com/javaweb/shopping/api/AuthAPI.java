@@ -9,7 +9,7 @@ import com.javaweb.shopping.payload.response.JwtResponse;
 import com.javaweb.shopping.payload.response.MessageResponse;
 import com.javaweb.shopping.repository.IRoleRepository;
 import com.javaweb.shopping.repository.IUserRepository;
-import com.javaweb.shopping.security.JwtUtils;
+import com.javaweb.shopping.utils.JwtUtils;
 import com.javaweb.shopping.service.impl.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +43,7 @@ public class AuthAPI {
     @Autowired
     JwtUtils jwtUtils;
 
-    @PostMapping("/signin")
+    @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -65,33 +65,39 @@ public class AuthAPI {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is exists"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Username is exists"));
         }
         UserEntity user = new UserEntity(signupRequest.getUsername(), encoder.encode(signupRequest.getPassword()));
         user.setName(signupRequest.getName());
         user.setStatus(signupRequest.getStatus());
+        user.setActive(true);
         List<String> strRoles = signupRequest.getRoles();
         List<RoleEntity> roles = new ArrayList<>();
         if (strRoles == null) {
             RoleEntity userRole = roleRepository.findByName(IRole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                    .orElseThrow(() -> new RuntimeException("Role is not found"));
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
                         RoleEntity adminRole = roleRepository.findByName(IRole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(() -> new RuntimeException("Role is not found"));
                         roles.add(adminRole);
                         break;
                     case "dev":
                         RoleEntity modRole = roleRepository.findByName(IRole.ROLE_DEVELOP)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(() -> new RuntimeException("Role is not found"));
                         roles.add(modRole);
+                        break;
+                    case "edit":
+                        RoleEntity editRole = roleRepository.findByName(IRole.ROLE_EDITOR)
+                                .orElseThrow(() -> new RuntimeException("Role is not found"));
+                        roles.add(editRole);
                         break;
                     default:
                         RoleEntity userRole = roleRepository.findByName(IRole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found"));
+                                .orElseThrow(() -> new RuntimeException("Role is not found"));
                         roles.add(userRole);
                         break;
                 }
@@ -101,4 +107,5 @@ public class AuthAPI {
         userRepository.save(user);
         return ResponseEntity.ok(new MessageResponse("User registered success"));
     }
+
 }

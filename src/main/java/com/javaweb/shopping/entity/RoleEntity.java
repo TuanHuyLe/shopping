@@ -1,5 +1,7 @@
 package com.javaweb.shopping.entity;
 
+import org.hibernate.annotations.Where;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
@@ -8,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Where(clause = "is_active=1")
 @Table(name = "Role")
 public class RoleEntity extends BaseEntity<String> {
     @Column(length = 191)

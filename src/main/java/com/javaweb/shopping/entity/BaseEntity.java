@@ -18,18 +18,33 @@ public abstract class BaseEntity<T> implements Serializable {
     private Integer id;
 
     @CreatedBy
+    @Column(updatable = false)
     private T createdBy;
 
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
+    @Column(updatable = false)
     private Date createdDate;
 
     @LastModifiedBy
+    @Column(insertable = false)
     private T modifiedBy;
 
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
+    @Column(insertable = false)
     private Date modifiedDate;
+
+    @Column(name = "is_active", columnDefinition = "boolean default true")
+    private Boolean active;
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 
     public Integer getId() {
         return id;

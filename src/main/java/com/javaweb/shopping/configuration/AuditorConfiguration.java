@@ -1,7 +1,6 @@
 package com.javaweb.shopping.configuration;
 
 import com.javaweb.shopping.entity.AuditorAwareEntity;
-import com.javaweb.shopping.entity.UserEntity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;

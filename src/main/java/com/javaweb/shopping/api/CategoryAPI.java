@@ -3,6 +3,7 @@ package com.javaweb.shopping.api;
 import com.javaweb.shopping.converter.CategoryConvert;
 import com.javaweb.shopping.dto.CategoryDTO;
 import com.javaweb.shopping.entity.CategoryEntity;
+import com.javaweb.shopping.payload.response.MessageResponse;
 import com.javaweb.shopping.service.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ public class CategoryAPI {
     private CategoryConvert categoryConvert;
 
     @GetMapping(value = "/category/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<Optional<CategoryDTO>> findById(@PathVariable("id") Integer id) {
         Optional<CategoryEntity> category = categoryService.findById(id);
         if (!category.isPresent()) {
@@ -35,6 +36,7 @@ public class CategoryAPI {
     }
 
     @GetMapping(value = "/categories")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<CategoryDTO>> findAll() {
         List<CategoryEntity> categories = categoryService.findAll();
         if (categories.isEmpty()) {
@@ -46,14 +48,39 @@ public class CategoryAPI {
     }
 
     @PostMapping(value = "/category")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CategoryDTO> create(@RequestBody CategoryDTO newCategory) {
+    @PreAuthorize("hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> create(@RequestBody CategoryDTO newCategory) {
         try {
             CategoryEntity categoryEntity = categoryConvert.toEntity(newCategory);
             categoryEntity = categoryService.save(categoryEntity);
+            if (categoryEntity == null) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Create failed! Name is exists"));
+            }
             return new ResponseEntity<>(categoryConvert.toDTO(categoryEntity), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PutMapping(value = "/category")
+    @PreAuthorize("hasRole('ROLE_EDITOR') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<CategoryDTO> update(@RequestBody CategoryDTO newCategory) {
+        try {
+            CategoryEntity categoryEntity = categoryConvert.toEntity(newCategory);
+            categoryEntity = categoryService.save(categoryEntity);
+            return ResponseEntity.ok(categoryConvert.toDTO(categoryEntity));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping(value = "/category/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
+        Optional<CategoryEntity> categoryEntity = categoryService.remove(id);
+        if (categoryEntity.isPresent()) {
+            return ResponseEntity.ok(categoryConvert.toDTO(categoryEntity.get()));
+        }
+        return ResponseEntity.badRequest().body(new MessageResponse("Delete failed! Id not found"));
     }
 }

@@ -12,5 +12,5 @@ public interface ICategoryService {
 
     CategoryEntity save(CategoryEntity newCategory);
 
-    void remove(CategoryEntity deleteCategory);
+    Optional<CategoryEntity> remove(Integer id);
 }
