@@ -1,6 +1,7 @@
 package com.javaweb.shopping.security;
 
 import com.javaweb.shopping.service.impl.UserDetailsServiceImpl;
+import com.javaweb.shopping.utils.JwtUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -16,7 +16,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     IUserRepository userRepository;
 
     @Override
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByUsername(name)
                 .orElseThrow(() -> new UsernameNotFoundException(

@@ -1,8 +1,11 @@
 package com.javaweb.shopping.entity;
 
+import org.hibernate.annotations.Where;
+
 import javax.persistence.*;
 
 @Entity
+@Where(clause = "is_active=1")
 @Table(name = "ProductImage")
 public class ProductImageEntity extends BaseEntity<String> {
     @Column(length = 191)

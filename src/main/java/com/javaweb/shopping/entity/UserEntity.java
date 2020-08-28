@@ -1,10 +1,13 @@
 package com.javaweb.shopping.entity;
 
+import org.hibernate.annotations.Where;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Where(clause = "is_active=1")
 @Table(name = "User")
 public class UserEntity extends BaseEntity<String> {
     @Column(length = 191)
@@ -13,7 +16,7 @@ public class UserEntity extends BaseEntity<String> {
     private String username;
     @Column(length = 191)
     private String password;
-    @Column
+    @Column(columnDefinition = "integer default 1")
     private Integer status;
 
     //many to many with role

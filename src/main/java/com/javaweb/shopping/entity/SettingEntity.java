@@ -1,10 +1,13 @@
 package com.javaweb.shopping.entity;
 
+import org.hibernate.annotations.Where;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
+@Where(clause = "is_active=1")
 @Table(name = "Setting")
 public class SettingEntity extends BaseEntity<String> {
     @Column(length = 191)

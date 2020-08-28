@@ -1,4 +1,4 @@
-package com.javaweb.shopping.security;
+package com.javaweb.shopping.utils;
 
 import com.javaweb.shopping.service.impl.UserDetailsImpl;
 import io.jsonwebtoken.*;

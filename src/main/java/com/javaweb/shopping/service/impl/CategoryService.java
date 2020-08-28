@@ -27,11 +27,22 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public CategoryEntity save(CategoryEntity newCategory) {
+        if (newCategory.getId() == null){
+            Optional<CategoryEntity> entity = categoryRepository.findByName(newCategory.getName());
+            if (entity.isPresent()){
+                return null;
+            }
+        }
         return categoryRepository.save(newCategory);
     }
 
     @Override
-    public void remove(CategoryEntity deleteCategory) {
-
+    public Optional<CategoryEntity> remove(Integer id) {
+        Optional<CategoryEntity> categoryEntity = categoryRepository.findById(id);
+        if (categoryEntity.isPresent()){
+            categoryEntity.get().setActive(false);
+            return Optional.of(categoryRepository.save(categoryEntity.get()));
+        }
+        return Optional.empty();
     }
 }
