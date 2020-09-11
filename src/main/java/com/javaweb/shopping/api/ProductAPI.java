@@ -1,13 +1,12 @@
 package com.javaweb.shopping.api;
 
 import com.javaweb.shopping.converter.ProductConverter;
+import com.javaweb.shopping.converter.ProductImageConverter;
 import com.javaweb.shopping.converter.TagConverter;
 import com.javaweb.shopping.dto.ProductDTO;
+import com.javaweb.shopping.dto.ProductImageDTO;
 import com.javaweb.shopping.dto.TagDTO;
-import com.javaweb.shopping.entity.CategoryEntity;
-import com.javaweb.shopping.entity.ProductEntity;
-import com.javaweb.shopping.entity.TagEntity;
-import com.javaweb.shopping.entity.UserEntity;
+import com.javaweb.shopping.entity.*;
 import com.javaweb.shopping.payload.response.MessageResponse;
 import com.javaweb.shopping.repository.IUserRepository;
 import com.javaweb.shopping.service.ICategoryService;
@@ -26,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -51,6 +51,9 @@ public class ProductAPI {
 
     @Autowired
     private IProductImageService productImageService;
+
+    @Autowired
+    private ProductImageConverter productImageConverter;
 
     @GetMapping(value = "/products")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
@@ -131,6 +134,11 @@ public class ProductAPI {
                 }
             }
             productEntity.setTags(tagEntities);
+            // add product image
+            ProductEntity finalProductEntity = productEntity;
+            List<ProductImageEntity> productImageEntities = productDTO.getProductImages()
+                    .stream().map(pi -> productImageConverter.toEntity(pi, finalProductEntity)).collect(Collectors.toList());
+            productEntity.setProductImages(productImageEntities);
             // save product
             productEntity = productService.save(productEntity);
             if (productEntity != null) {
@@ -180,6 +188,11 @@ public class ProductAPI {
                 }
             }
             productEntity.setTags(oldTagEntities);
+            // add product image
+            ProductEntity finalProductEntity = productEntity;
+            List<ProductImageEntity> productImageEntities = productDTO.getProductImages()
+                    .stream().map(pi -> productImageConverter.toEntity(pi, finalProductEntity)).collect(Collectors.toList());
+            productEntity.setProductImages(productImageEntities);
             // save update product
             productEntity = productService.save(productEntity);
             return ResponseEntity.ok(productConverter.toDTO(productEntity));

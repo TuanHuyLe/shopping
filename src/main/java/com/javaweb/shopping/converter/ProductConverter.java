@@ -1,6 +1,7 @@
 package com.javaweb.shopping.converter;
 
 import com.javaweb.shopping.dto.ProductDTO;
+import com.javaweb.shopping.dto.ProductImageDTO;
 import com.javaweb.shopping.entity.ProductEntity;
 import com.javaweb.shopping.utils.SlugifyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import java.util.List;
 public class ProductConverter {
     @Autowired
     private SlugifyUtils slugifyUtils;
+    @Autowired
+    private ProductImageConverter productImageConverter;
 
     public ProductEntity toEntity(ProductDTO productDTO) {
         if (productDTO == null) {
@@ -46,9 +49,14 @@ public class ProductConverter {
         productDTO.setPrice(productEntity.getPrice());
         productDTO.setSlug(productEntity.getSlug());
         productDTO.setCategoryId(productEntity.getCategory().getId());
+        // add list tag
         List<String> tags = new ArrayList<>();
         productEntity.getTags().forEach(tag -> tags.add(tag.getName()));
         productDTO.setTags(tags);
+        // add list product image
+        List<ProductImageDTO> productImages = new ArrayList<>();
+        productEntity.getProductImages().forEach(image -> productImages.add(productImageConverter.toDTO(image)));
+        productDTO.setProductImages(productImages);
         return productDTO;
     }
 }

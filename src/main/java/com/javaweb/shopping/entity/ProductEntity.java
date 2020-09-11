@@ -55,6 +55,10 @@ public class ProductEntity extends BaseEntity<String> {
         this.category = category;
     }
 
+    public List<ProductImageEntity> getProductImages() {
+        return productImages;
+    }
+
     public List<TagEntity> getTags() {
         return tags;
     }
