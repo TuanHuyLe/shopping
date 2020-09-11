@@ -5,9 +5,10 @@ import com.javaweb.shopping.repository.ICategoryRepository;
 import com.javaweb.shopping.repository.IProductRepository;
 import com.javaweb.shopping.service.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,15 +26,20 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<ProductEntity> findAll() {
-        return productRepository.findAll();
+    public Page<ProductEntity> findAll(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<ProductEntity> findBySlugContaining(String slug, Pageable pageable) {
+        return productRepository.findBySlugContaining(slug, pageable);
     }
 
     @Override
     public ProductEntity save(ProductEntity newProduct) {
-        if (newProduct.getId() == null){
+        if (newProduct.getId() == null) {
             Optional<ProductEntity> productEntity = productRepository.findByName(newProduct.getName());
-            if (productEntity.isPresent()){
+            if (productEntity.isPresent()) {
                 return null;
             }
         }

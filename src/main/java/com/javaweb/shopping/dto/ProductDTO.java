@@ -8,6 +8,7 @@ public class ProductDTO extends AbstractDTO {
     private String featureImageName;
     private String featureImagePath;
     private String name;
+    private String slug;
     private Long price;
     private Integer categoryId;
     private List<String> tags;
@@ -26,6 +27,14 @@ public class ProductDTO extends AbstractDTO {
 
     public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public String getContent() {

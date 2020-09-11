@@ -11,18 +11,21 @@ import com.javaweb.shopping.entity.UserEntity;
 import com.javaweb.shopping.payload.response.MessageResponse;
 import com.javaweb.shopping.repository.IUserRepository;
 import com.javaweb.shopping.service.ICategoryService;
+import com.javaweb.shopping.service.IProductImageService;
 import com.javaweb.shopping.service.IProductService;
 import com.javaweb.shopping.service.ITagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -46,16 +49,33 @@ public class ProductAPI {
     @Autowired
     private TagConverter tagConverter;
 
+    @Autowired
+    private IProductImageService productImageService;
+
     @GetMapping(value = "/products")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> findAll() {
-        List<ProductEntity> products = productService.findAll();
+    public ResponseEntity<?> findAll(@RequestParam(value = "name", required = false) String name,
+                                     @RequestParam(value = "page", required = false, defaultValue = "1") String page,
+                                     @RequestParam(value = "limit", required = false, defaultValue = "3") String limit) {
+        Pageable pageable = PageRequest.of(Integer.parseInt(page) - 1, Integer.parseInt(limit), Sort.by("createdDate")
+                .descending());
+        Page<ProductEntity> products;
+        if (name == null) {
+            products = productService.findAll(pageable);
+        } else {
+            products = productService.findBySlugContaining(name, pageable);
+        }
         if (products.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         List<ProductDTO> productDTOs = new ArrayList<>();
         products.forEach(x -> productDTOs.add(productConverter.toDTO(x)));
-        return ResponseEntity.ok(productDTOs);
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalPages", products.getTotalPages());
+        response.put("totalItems", products.getTotalElements());
+        response.put("currentPage", products.getNumber() + 1);
+        response.put("products", productDTOs);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(value = "/product/{id}")
@@ -170,9 +190,9 @@ public class ProductAPI {
 
     @DeleteMapping(value = "/product/{id}")
     @PreAuthorize("hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> remove(@PathVariable("id") Integer id){
+    public ResponseEntity<?> remove(@PathVariable("id") Integer id) {
         Optional<ProductEntity> productEntity = productService.remove(id);
-        if (productEntity.isPresent()){
+        if (productEntity.isPresent()) {
             return ResponseEntity.ok(new MessageResponse("Delete successfully"));
         }
         return ResponseEntity.badRequest().body(new MessageResponse("Delete failed"));
