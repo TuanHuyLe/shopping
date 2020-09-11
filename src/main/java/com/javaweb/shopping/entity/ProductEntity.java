@@ -53,6 +53,10 @@ public class ProductEntity extends BaseEntity<String> {
         this.category = category;
     }
 
+    public List<TagEntity> getTags() {
+        return tags;
+    }
+
     public CategoryEntity getCategory() {
         return category;
     }

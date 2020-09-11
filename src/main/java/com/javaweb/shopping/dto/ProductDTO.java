@@ -1,12 +1,24 @@
 package com.javaweb.shopping.dto;
 
-public class ProductDTO extends AbstractDTO{
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProductDTO extends AbstractDTO {
     private String content;
     private String featureImageName;
     private String featureImagePath;
     private String name;
     private Long price;
     private Integer categoryId;
+    private List<String> tags;
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
 
     public Integer getCategoryId() {
         return categoryId;
@@ -65,5 +77,6 @@ public class ProductDTO extends AbstractDTO{
     }
 
     public ProductDTO() {
+        tags = new ArrayList<>();
     }
 }
