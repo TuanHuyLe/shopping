@@ -1,14 +1,18 @@
 package com.javaweb.shopping.api;
 
 import com.javaweb.shopping.converter.ProductConverter;
+import com.javaweb.shopping.converter.TagConverter;
 import com.javaweb.shopping.dto.ProductDTO;
+import com.javaweb.shopping.dto.TagDTO;
 import com.javaweb.shopping.entity.CategoryEntity;
 import com.javaweb.shopping.entity.ProductEntity;
+import com.javaweb.shopping.entity.TagEntity;
 import com.javaweb.shopping.entity.UserEntity;
 import com.javaweb.shopping.payload.response.MessageResponse;
 import com.javaweb.shopping.repository.IUserRepository;
 import com.javaweb.shopping.service.ICategoryService;
 import com.javaweb.shopping.service.IProductService;
+import com.javaweb.shopping.service.ITagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +39,12 @@ public class ProductAPI {
 
     @Autowired
     private IUserRepository userRepository;
+
+    @Autowired
+    private ITagService tagService;
+
+    @Autowired
+    private TagConverter tagConverter;
 
     @GetMapping(value = "/products")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
@@ -72,18 +82,36 @@ public class ProductAPI {
     @PreAuthorize("hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> create(@RequestBody ProductDTO productDTO) {
         try {
+            // add category
             Optional<CategoryEntity> categoryEntity = categoryService.findById(productDTO.getCategoryId());
             ProductEntity productEntity = productConverter.toEntity(productDTO);
             if (!categoryEntity.isPresent()) {
                 return ResponseEntity.badRequest().body(new MessageResponse("Category not exists!"));
             }
             productEntity.setCategory(categoryEntity.get());
+            // add current user post
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             Optional<UserEntity> userEntity = userRepository.findByUsername(username);
             if (!userEntity.isPresent()) {
                 return ResponseEntity.badRequest().body(new MessageResponse("User not exists!"));
             }
             productEntity.setUser(userEntity.get());
+            // add tag
+            List<String> strTags = productDTO.getTags();
+            List<TagEntity> tagEntities = new ArrayList<>();
+            if (strTags != null) {
+                for (String tag : strTags) {
+                    Optional<TagEntity> tagEntity = tagService.findByName(tag);
+                    if (!tagEntity.isPresent()) {
+                        TagDTO tagDTO = new TagDTO();
+                        tagDTO.setName(tag);
+                        tagEntity = tagService.save(tagConverter.toEntity(tagDTO));
+                    }
+                    tagEntities.add(tagEntity.get());
+                }
+            }
+            productEntity.setTags(tagEntities);
+            // save product
             productEntity = productService.save(productEntity);
             if (productEntity != null) {
                 return new ResponseEntity<>(productConverter.toDTO(productEntity), HttpStatus.CREATED);
@@ -98,22 +126,55 @@ public class ProductAPI {
     @PreAuthorize("hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> update(@RequestBody ProductDTO productDTO) {
         try {
+            //check exists product to update
+            Optional<ProductEntity> product = productService.findById(productDTO.getId());
+            if (!product.isPresent()) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Product not exists!"));
+            }
+            // check exists category
             Optional<CategoryEntity> categoryEntity = categoryService.findById(productDTO.getCategoryId());
             ProductEntity productEntity = productConverter.toEntity(productDTO);
             if (!categoryEntity.isPresent()) {
                 return ResponseEntity.badRequest().body(new MessageResponse("Category not exists!"));
             }
             productEntity.setCategory(categoryEntity.get());
+            // check user
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             Optional<UserEntity> userEntity = userRepository.findByUsername(username);
             if (!userEntity.isPresent()) {
                 return ResponseEntity.badRequest().body(new MessageResponse("User not exists!"));
             }
             productEntity.setUser(userEntity.get());
+            // add tag
+            List<String> strTags = productDTO.getTags();
+            List<TagEntity> oldTagEntities = new ArrayList<>();
+            if (strTags != null) {
+                for (String tag : strTags) {
+                    Optional<TagEntity> tagEntity = tagService.findByName(tag);
+                    if (!tagEntity.isPresent()) {
+                        TagDTO tagDTO = new TagDTO();
+                        tagDTO.setName(tag);
+                        tagEntity = tagService.save(tagConverter.toEntity(tagDTO));
+                    }
+                    oldTagEntities.add(tagEntity.get());
+                }
+            }
+            productEntity.setTags(oldTagEntities);
+            // save update product
             productEntity = productService.save(productEntity);
-            return new ResponseEntity<>(productConverter.toDTO(productEntity), HttpStatus.CREATED);
+            return ResponseEntity.ok(productConverter.toDTO(productEntity));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @DeleteMapping(value = "/product/{id}")
+    @PreAuthorize("hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> remove(@PathVariable("id") Integer id){
+        Optional<ProductEntity> productEntity = productService.remove(id);
+        if (productEntity.isPresent()){
+            return ResponseEntity.ok(new MessageResponse("Delete successfully"));
+        }
+        return ResponseEntity.badRequest().body(new MessageResponse("Delete failed"));
     }
 }

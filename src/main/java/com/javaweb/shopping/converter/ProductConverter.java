@@ -4,6 +4,9 @@ import com.javaweb.shopping.dto.ProductDTO;
 import com.javaweb.shopping.entity.ProductEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class ProductConverter {
     public ProductEntity toEntity(ProductDTO productDTO) {
@@ -36,6 +39,9 @@ public class ProductConverter {
         productDTO.setFeatureImagePath(productEntity.getFeatureImagePath());
         productDTO.setPrice(productEntity.getPrice());
         productDTO.setCategoryId(productEntity.getCategory().getId());
+        List<String> tags = new ArrayList<>();
+        productEntity.getTags().forEach(tag -> tags.add(tag.getName()));
+        productDTO.setTags(tags);
         return productDTO;
     }
 }
