@@ -53,6 +53,10 @@ public class ProductEntity extends BaseEntity<String> {
         this.category = category;
     }
 
+    public CategoryEntity getCategory() {
+        return category;
+    }
+
     public void setUser(UserEntity user) {
         this.user = user;
     }
