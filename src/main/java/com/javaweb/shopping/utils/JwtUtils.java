@@ -7,7 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 @Component
@@ -20,12 +23,19 @@ public class JwtUtils {
 
     private String jwtExpirationMs = resourceBundle.getString("jwtExpirationMs");
 
-    public String generateJwtToken(Authentication authentication) {
+    public String generateJwtToken(Authentication authentication, HttpServletRequest request) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         Date now = new Date();
         Long time = Long.parseLong(jwtExpirationMs);
         Date expiryDate = new Date(now.getTime() + time);
+
+        final Map<String, Object> claims = new HashMap<>();
+        //add ip client adress
+        claims.put("ip", getClientIp(request));
+        claims.put("ua", getUserAgent(request));
+
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(userPrincipal.getUsername())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
@@ -33,20 +43,55 @@ public class JwtUtils {
                 .compact();
     }
 
-    public boolean validateJwtToken(String jwt) {
+
+    public String getClientIp(HttpServletRequest request) {
+        String remoteAddr = "";
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
+        return remoteAddr;
+    }
+
+    public String getUserAgent(HttpServletRequest request) {
+        String ua = "";
+        if (request != null) {
+            ua = request.getHeader("User-Agent");
+        }
+        return ua;
+    }
+
+    public boolean validateJwtToken(String jwt, HttpServletRequest request) {
         try {
+            final String ipAddress = getClientIp(request);
+            final String userAgent = getUserAgent(request);
+            // not match return error
+            if (!ipAddress.equals(getClientIpFromJwtToken(jwt))
+                    || !userAgent.equals(getUserAgentFromJwtToken(jwt))) {
+                return false;
+            }
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwt);
             return true;
         } catch (MalformedJwtException ex) {
-            System.out.println("Invalid JWT token");
+            logger.error("Invalid JWT token");
         } catch (ExpiredJwtException ex) {
-            System.out.println("Expired JWT token");
+            logger.error("Expired JWT token");
         } catch (UnsupportedJwtException ex) {
-            System.out.println("Unsupported JWT token");
+            logger.error("Unsupported JWT token");
         } catch (IllegalArgumentException ex) {
-            System.out.println("JWT claims string is empty.");
+            logger.error("JWT claims string is empty.");
         }
         return false;
+    }
+
+    public String getClientIpFromJwtToken(String jwt) {
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwt).getBody().get("ip").toString();
+    }
+
+    public String getUserAgentFromJwtToken(String jwt) {
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwt).getBody().get("ua").toString();
     }
 
     public String getUsernameFromJwtToken(String jwt) {

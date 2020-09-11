@@ -8,6 +8,7 @@ import com.javaweb.shopping.service.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,7 +55,7 @@ public class CategoryAPI {
             CategoryEntity categoryEntity = categoryConvert.toEntity(newCategory);
             categoryEntity = categoryService.save(categoryEntity);
             if (categoryEntity == null) {
-                return ResponseEntity.badRequest().body(new MessageResponse("Create failed! Name is exists"));
+                return ResponseEntity.badRequest().body(new MessageResponse("Create failed! Category is exists"));
             }
             return new ResponseEntity<>(categoryConvert.toDTO(categoryEntity), HttpStatus.CREATED);
         } catch (Exception e) {
