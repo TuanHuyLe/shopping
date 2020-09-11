@@ -12,6 +12,15 @@ public class ProductDTO extends AbstractDTO {
     private Long price;
     private Integer categoryId;
     private List<String> tags;
+    private List<ProductImageDTO> productImages;
+
+    public List<ProductImageDTO> getProductImages() {
+        return productImages;
+    }
+
+    public void setProductImages(List<ProductImageDTO> productImages) {
+        this.productImages = productImages;
+    }
 
     public List<String> getTags() {
         return tags;
@@ -87,5 +96,6 @@ public class ProductDTO extends AbstractDTO {
 
     public ProductDTO() {
         tags = new ArrayList<>();
+        productImages = new ArrayList<>();
     }
 }
