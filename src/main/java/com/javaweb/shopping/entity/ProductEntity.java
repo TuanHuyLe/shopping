@@ -12,6 +12,8 @@ import java.util.List;
 public class ProductEntity extends BaseEntity<String> {
     @Column(length = 191)
     private String name;
+    @Column(length = 191)
+    private String slug;
     @Column
     private Long price;
     @Column(length = 191)
@@ -113,8 +115,17 @@ public class ProductEntity extends BaseEntity<String> {
         this.featureImageName = featureImageName;
     }
 
-    public ProductEntity(String name, Long price, String featureImagePath, String content, String featureImageName) {
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public ProductEntity(String name, String slug, Long price, String featureImagePath, String content, String featureImageName) {
         this.name = name;
+        this.slug = slug;
         this.price = price;
         this.featureImagePath = featureImagePath;
         this.content = content;
