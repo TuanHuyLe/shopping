@@ -7,18 +7,16 @@ public class SignupRequest {
     private String username;
     private String password;
     private String name;
-    private Integer status;
     private List<String> roles;
 
     public SignupRequest() {
         roles = new ArrayList<>();
     }
 
-    public SignupRequest(String username, String password, String name, Integer status) {
+    public SignupRequest(String username, String password, String name) {
         this.username = username;
         this.password = password;
         this.name = name;
-        this.status = status;
         roles = new ArrayList<>();
     }
 
@@ -54,11 +52,4 @@ public class SignupRequest {
         this.name = name;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
 }
