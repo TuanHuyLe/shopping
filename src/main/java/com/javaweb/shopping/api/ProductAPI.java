@@ -56,7 +56,6 @@ public class ProductAPI {
     private ProductImageConverter productImageConverter;
 
     @GetMapping(value = "/products")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> findAll(@RequestParam(value = "name", required = false) String name,
                                      @RequestParam(value = "page", required = false, defaultValue = "1") String page,
                                      @RequestParam(value = "limit", required = false, defaultValue = "3") String limit) {
@@ -82,7 +81,6 @@ public class ProductAPI {
     }
 
     @GetMapping(value = "/product/{id}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> findOne(@PathVariable("id") Integer id) {
         Optional<ProductEntity> productEntity = productService.findById(id);
         if (productEntity.isPresent()) {
@@ -92,7 +90,6 @@ public class ProductAPI {
     }
 
     @GetMapping(value = "/product")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_DEVELOP') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> findById(@RequestParam("id") Integer id) {
         Optional<ProductEntity> productEntity = productService.findById(id);
         if (productEntity.isPresent()) {
